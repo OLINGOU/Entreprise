@@ -1,18 +1,14 @@
 <?php
-
 namespace App\Controller;
-
-use DateTime;
 use App\Entity\Employe;
 use App\Form\EmployeFormType;
-use Doctrine\ORM\EntityManager;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-
 class EmployeController extends AbstractController
 {
     /*
@@ -30,46 +26,65 @@ class EmployeController extends AbstractController
         * c - une méthode HTTP, qui autorise telle ou telle requête HTTP. Question de sécurité !
     !!! TOUTES VOS ROUTES DOIVENT ÊTRE COLLÉES À VOTRE FONCTION !!!
      */
-
-    #[Route('/ajouter-un-employe', name: 'create_employe', methods: ['GET','POST'])]
+    #[Route('/ajouter-un-employe', name: 'create_employe', methods: ['GET', 'POST'])]
     public function createEmploye(Request $request, EntityManagerInterface $entityManager): Response
     {
         // ----------------------------------- 1ere Méthode : GET --------------------------------- //
-
-        #Instanciation d'un objet de type Employe
+        # Instanciation d'un objet de type Employe.
         $employe = new Employe();
-
         # Nous créons une variable $form qui contiendra le formulaire créé par la méthode createForm()
         # Le mécanisme d'auto-hydratation se fait concrétement par l'ajout d'un second argument
         # dans la méthode createForm(). On passera $employe en argument.
         $form = $this->createForm(EmployeFormType::class, $employe);
-
-        # Pour que le mécanisme de base de symfony soit respecté,on devra manipuler la requête avec la methode handleRequest() et l'objet $request 
+        # Pour que le mécanisme de base de Symfony soit respecté, on devra manipuler la requête
+        # avec la méthode handleRequest() et l'objet $request
         $form->handleRequest($request);
         // ----------------------------------- 2eme Méthode : POST --------------------------------- //
         if($form->isSubmitted() && $form->isValid()) {
-
-            #nous devons renseigner manuellement une valeur pour la propriété createdAt car cette valeur ne peut pas être "NULL" et n'est setter par le formulaire
+            # Nous devons renseigner manuellement une valeur pour la propriété createdAt
+            # car cette valeur ne peut pas être "null" et n'est pas setter par le formulaire.
             $employe->setCreatedAt(new DateTime());
-
-            # nous inserons en BDD grace à notre  $entityManager et la methode persist
+            # Nous insérons en BDD grâce à notre $entityManager et la méthode persist().
             $entityManager->persist($employe);
-
             # Nous devrons "vider" (trad de flush) l'entityManager pour réellement ajouter une ligne en BDD.
             $entityManager->flush();
-            
-            # pour terminer nous devons rediriger l'utilisateur vers une page html
+            # Pour terminer, nous devons rediriger l'utilisateur sur une page html.
             # Nous utilisons la méthode redirectToRoute() pour faire la redirection.
             return $this->redirectToRoute('default_home');
         }
-
         // ----------------------------------- 1ere Méthode : GET --------------------------------- //
-
         # On peut directement 'return' pour rendre la vue (page HTMl) du formulaire.
         return $this->render('form/employe.html.twig', [
             'form_employe' => $form->createView()
         ]);
+    } // end function create
+    #[Route('/modifier-un-employe/{id}', name: 'update_employe', methods:['GET', 'POST'])]
+    public function updateEmploye(Employe $employe, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $form = $this->createForm(EmployeFormType::class, $employe)
+            ->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid()) {
+            $entityManager->persist($employe);
+            $entityManager->flush();
+            return $this->redirectToRoute('default_home');
+        }
+        return $this->render('form/employe.html.twig', [
+            'form_employe' => $form->createView(),
+            'employe' => $employe
+        ]);
+    } // end function update
 
+    #[Route('/supprimer-un-employe/{id}', name: 'delete_employe', methods: ['GET'])]
+    public function deleteEmploye(Employe $employe, EntityManagerInterface $entityManager): RedirectResponse
+    {
+        # Pour utiliser la fonction de suppression de Doctrine, on appelle la méthode remove() de $entityManager
+        $entityManager->remove($employe);
+        # On doit flush() également pour effectuer la suppression.
+        $entityManager->flush();
+
+        # On redirige directement sur la page d'accueil.
+        # La méthode redirectToRoute() nous retourne un objet de type RedirectResponse
+        return $this->redirectToRoute('default_home');
     }
 
-}
+}// end class 

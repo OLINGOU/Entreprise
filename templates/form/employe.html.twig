@@ -1,15 +1,21 @@
 {% extends 'base.html.twig' %}
-
-{% block title %}Ajouter un employe{% endblock %}
+{% block title %}Ajouter un employé{% endblock %}
 
 {% block body %}
 
-    <h1 CLASS="text-center my-4">Ajouter un employé dans l'annuaire</h1>
+    <h1 class="text-center my-4">Ajouter un employé dans l'annuaire</h1>
+    {% if employe is not defined %}
+        <h1 class="text-center my-4">Ajouter un employé dans l'annuaire</h1>
+    {% else %}
+        <h1 class="text-center my-4">Modifier l'employé {{ employe.prenom }}</h1>
+    {% endif %}
 
-{#form() est la fonction Twig pour afficher un formulaire.Il existe plusieurs façons de demander à Twig d'afficher un formulaire.#}
-<div class="row">
-    <div class="col-6 mx-auto">
-{{form(form_employe)}}
+{# form() est la fonction Twig pour afficher un formulaire
+    {# form() est la fonction Twig pour afficher un formulaire
+    Il existe plusieurs façons de demander à Twig d'afficher un formulaire.#}
+    <div class="row">
+        <div class="col-6 mx-auto">
+            {{ form(form_employe) }}
+        </div>
     </div>
-</div>
-{% endblock %}    
+{% endblock %}
