@@ -10,7 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class DefaultController extends AbstractController
 {
-    #[Route('/', name: 'default_home')]
+    #[Route('/', name: 'default_home', methods: ['GET'])]
     public function home(EntityManagerInterface $entityManager): Response
     {
 $employes = $entityManager->getRepository(Employe::class)->findAll();
