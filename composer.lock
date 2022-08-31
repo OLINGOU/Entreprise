@@ -18,7 +18,7 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/doctrine/annotations/zipball/648b0343343565c4a056bfc8392201385e8d89f0",
                 "reference": "648b0343343565c4a056bfc8392201385e8d89f0",
-                "shasum": ""
+                "shasum": "" 
             },
             "require": {
                 "doctrine/lexer": "1.*",
